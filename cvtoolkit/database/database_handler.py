@@ -10,6 +10,8 @@ from sqlalchemy.exc import DatabaseError, SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+logger = logging.getLogger(__name__)
+
 
 class DBConfigSQLAlchemy:
     Base = declarative_base()
@@ -40,7 +42,7 @@ class DBConfigSQLAlchemy:
             command = ["az", "login", "--identity", "--username", client_id]
             subprocess.check_call(command)  # nosec
         except subprocess.CalledProcessError as e:
-            logging.error("Error during 'az login --identity': {e}")
+            logger.error("Error during 'az login --identity': {e}")
             raise e
 
         # Execute Azure CLI command to get the access token
@@ -79,11 +81,11 @@ class DBConfigSQLAlchemy:
                 bind=self.engine, autoflush=False, autocommit=False
             )
 
-            logging.info("Successfully created database sessionmaker.")
+            logger.info("Successfully created database sessionmaker.")
 
         except SQLAlchemyError as e:
             # Handle any exceptions that occur during connection creation
-            logging.error(f"Error creating database sessionmaker: {str(e)}")
+            logger.error(f"Error creating database sessionmaker: {str(e)}")
             raise e
 
     @contextmanager
@@ -102,7 +104,7 @@ class DBConfigSQLAlchemy:
             except DatabaseError as e:
                 # You can add a sleep here before the next retry
                 if retry < self.retry_count - 1:
-                    logging.error(
+                    logger.error(
                         f"Error with the connection to the database, retry after {self.retry_delay} seconds..."
                     )
                     time.sleep(self.retry_delay)
@@ -114,10 +116,10 @@ class DBConfigSQLAlchemy:
         try:
             self.engine.dispose()
         except SQLAlchemyError as e:
-            logging.error(f"Error disposing the database engine: {str(e)}")
+            logger.error(f"Error disposing the database engine: {str(e)}")
             raise e
 
     def _validate_token_status(self):
         if self.token_expiration_time < datetime.now():
             self._get_db_access_token()
-            logging.info("Token for database renewed.")
+            logger.info("Token for database renewed.")

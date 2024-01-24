@@ -4,12 +4,10 @@ from functools import reduce
 from typing import Any, Dict, List, Optional, Type
 
 import yaml
-from blurring_as_a_service.settings.attr_dict import AttrDict
-from blurring_as_a_service.settings.settings_schema import (
-    BlurringAsAServiceSettingsSpec,
-)
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from pydantic import BaseModel
+
+from cvtoolkit.settings.attr_dict import AttrDict
 
 logger = logging.getLogger(__name__)
 
@@ -76,9 +74,7 @@ class GenericSettings(AttrDict, metaclass=SettingsMeta):  # type: ignore
         return v
 
     @classmethod
-    def from_yaml(
-        cls, filename: str, spec: BaseModel = BlurringAsAServiceSettingsSpec
-    ) -> "GenericSettings":
+    def from_yaml(cls, filename: str, spec: BaseModel) -> "GenericSettings":
         """Read the config file and returns it as dictionary"""
         try:
             with open(filename, "r") as f:
@@ -97,8 +93,8 @@ class GenericSettings(AttrDict, metaclass=SettingsMeta):  # type: ignore
     def validate(
         cls,
         data: Dict,
+        spec: BaseModel,
         errors: str = "raise",
-        spec: BaseModel = BlurringAsAServiceSettingsSpec,
     ) -> Dict:
         """Called when setting the global settings. Can be overriden in subclasses.
 
@@ -108,11 +104,10 @@ class GenericSettings(AttrDict, metaclass=SettingsMeta):  # type: ignore
         ----------
         data: Dict
             the data to validate
+        spec : pydantic.BaseModel, optional
+            the data is validated using this model.
         errors : {"log", "raise"}
             what to do with errors. Default: "raise"
-        spec : pydantic.BaseModel, optional
-            if provided, the data is validated using this model. Default:
-            `BlurringAsAServiceSettingsSpec`.
 
         Raises
         ------
@@ -136,9 +131,7 @@ class GenericSettings(AttrDict, metaclass=SettingsMeta):  # type: ignore
         return data
 
     @classmethod
-    def set_from_yaml(
-        cls, filename: str, spec: BaseModel = BlurringAsAServiceSettingsSpec
-    ) -> "GenericSettings":
+    def set_from_yaml(cls, filename: str, spec: BaseModel) -> "GenericSettings":
         """Load settings from yaml and register them as the default"""
         settings = cls.from_yaml(filename, spec=spec)
         cls.set_settings(settings)
@@ -165,8 +158,8 @@ class Settings(GenericSettings):  # type: ignore
     def validate(
         cls,
         data: Dict,
+        spec: BaseModel,
         errors: str = "raise",
-        spec: BaseModel = BlurringAsAServiceSettingsSpec,
     ) -> Dict:
         """A non-exhaustive validity check for the settings dictionary."""
         data = super().validate(data, errors, spec)
