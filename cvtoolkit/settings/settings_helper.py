@@ -1,10 +1,9 @@
 import logging
 from enum import IntFlag
 from functools import reduce
-from typing import Any, Dict, List, Optional, Type
+from typing import Dict, List, Optional, Type
 
 import yaml
-from opencensus.ext.azure.log_exporter import AzureLogHandler
 from pydantic import BaseModel
 
 from cvtoolkit.settings.attr_dict import AttrDict
@@ -162,7 +161,7 @@ class Settings(GenericSettings):  # type: ignore
         errors: str = "raise",
     ) -> Dict:
         """A non-exhaustive validity check for the settings dictionary."""
-        data = super().validate(data, errors, spec)
+        data = super().validate(data=data, spec=spec, errors=errors)
         logger.debug("Validating settings.")
         return data
 
@@ -170,35 +169,6 @@ class Settings(GenericSettings):  # type: ignore
 # register an empty Settings object as default.
 # Custom packages will most likely change this default...
 Settings.set_settings(Settings())
-
-
-def setup_azure_logging(logging_cfg: Dict[str, Any], pkg_name: str = None):
-    """
-    Sets up logging according to the configuration.
-
-    Parameters
-    ----------
-    logging_cfg: logging configuration part of the config.yml
-    pkg_name: package to set up logging for
-
-    Returns
-    -------
-
-    """
-    logging.basicConfig(**logging_cfg["basic_config"])
-    instrumentation_key = logging_cfg["ai_instrumentation_key"]
-    azure_log_handler = AzureLogHandler(connection_string=instrumentation_key)
-    azure_log_handler.setLevel(logging_cfg["loglevel_own"])
-
-    packages = logging_cfg["own_packages"] + ([pkg_name] if pkg_name else [])
-
-    for pkg in packages:
-        logger = logging.getLogger(pkg)
-        if logger.handlers:
-            print(f"Handler for {pkg} has been set already.")
-        else:
-            logger.addHandler(azure_log_handler)
-            print(f"pkg {pkg} has the following handlers: {logger.handlers}")
 
 
 def strings2flags(
