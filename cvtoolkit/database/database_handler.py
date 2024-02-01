@@ -16,12 +16,13 @@ logger = logging.getLogger(__name__)
 class DBConfigSQLAlchemy:
     Base = declarative_base()
 
-    def __init__(self, db_username, db_hostname, db_name):
+    def __init__(self, db_username, db_hostname, db_name, client_id):
         self.engine = None
         self.session_maker = None
         self.db_username = db_username
         self.db_hostname = db_hostname
         self.db_name = db_name
+        self.client_id = client_id
         self.access_token = None
         self.token_expiration_time = None
         self.token_renewal_margin = timedelta(minutes=5)
@@ -29,17 +30,9 @@ class DBConfigSQLAlchemy:
         self.retry_delay = 5  # seconds between retries
 
     def _get_db_access_token(self):
-        with open("database.json") as f:
-            config = json.load(f)
-
-        # Retrieve values from the JSON
-        client_id = config[
-            "client_id"
-        ]  # TODO get this from the Managed Identity name in code
-
         # Authenticate using Managed Identity (MSI)
         try:
-            command = ["az", "login", "--identity", "--username", client_id]
+            command = ["az", "login", "--identity", "--username", self.client_id]
             subprocess.check_call(command)  # nosec
         except subprocess.CalledProcessError as e:
             logger.error("Error during 'az login --identity': {e}")
