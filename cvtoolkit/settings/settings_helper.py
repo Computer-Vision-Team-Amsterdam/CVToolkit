@@ -1,4 +1,5 @@
 import logging
+import os
 from enum import IntFlag
 from functools import reduce
 from typing import Dict, List, Optional, Type
@@ -67,9 +68,8 @@ class GenericSettings(AttrDict, metaclass=SettingsMeta):  # type: ignore
     @classmethod
     def process_value(cls, k, v):
         v = super().process_value(k, v)
-        # NOTE we dont want to parse {} in strings for now
-        # if isinstance(v, str):
-        #     return v.format(**os.environ)
+        if isinstance(v, str):
+            return v.format(**os.environ)
         return v
 
     @classmethod
