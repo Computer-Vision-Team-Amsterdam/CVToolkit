@@ -57,3 +57,11 @@ def copy_file(relative_path, input_path, output_path):
             raise FileNotFoundError(error_message)
     else:
         logger.info(f"Source file '{source_path}' does not exist.")
+
+
+def delete_folder(folder_path):
+    if os.path.exists(folder_path):
+        shutil.rmtree(folder_path)
+        print(f"Folder {folder_path} and its contents deleted successfully.")
+    else:
+        print(f"Folder {folder_path} does not exist.")
