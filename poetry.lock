@@ -714,7 +714,7 @@ mpmath = ">=0.19"
 
 [[package]]
 name = "torch"
-version = "2.2.0"
+version = "2.2.2"
 description = "Tensors and Dynamic neural networks in Python with strong GPU acceleration"
 category = "main"
 optional = false
@@ -737,7 +737,7 @@ nvidia-cusparse-cu12 = {version = "12.1.0.106", markers = "platform_system == \"
 nvidia-nccl-cu12 = {version = "2.19.3", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\""}
 nvidia-nvtx-cu12 = {version = "12.1.105", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\""}
 sympy = "*"
-triton = {version = "2.2.0", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\""}
+triton = {version = "2.2.0", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and python_version < \"3.12\""}
 typing-extensions = ">=4.8.0"
 
 [package.extras]
@@ -802,7 +802,7 @@ test = ["covdefaults (>=2.3)", "coverage-enable-subprocess (>=1)", "coverage (>=
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8"
-content-hash = "7a9e3f1b2a1e35b2d0024396d491bd971c3bdc67ba6e24473f8f141c68852ce5"
+content-hash = "769f2aeaee78036c19e574a4e11896b96ad8c484d66222e6abb7fa2639b87e74"
 
 [metadata.files]
 azure-core = []

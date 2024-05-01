@@ -15,7 +15,7 @@ opencensus-ext-azure = {version = "^1.1.13", source = "PyPI"}
 pre-commit = {version = "^3.2.0", source = "PyPI"}
 pydantic = {version = "^1.8.2", source = "PyPI"}
 SQLAlchemy = {version = "1.4.50", source = "PyPI"}
-torch = {version = "2.2.0", source = "PyPI"}
+torch = {version = "2.2.2", source = "PyPI"}
 
 [tool.poetry.dev-dependencies]
 
