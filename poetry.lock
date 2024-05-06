@@ -801,8 +801,8 @@ test = ["covdefaults (>=2.3)", "coverage-enable-subprocess (>=1)", "coverage (>=
 
 [metadata]
 lock-version = "1.1"
-python-versions = ">=3.8, <3.11"
-content-hash = "233ee6183736fa0ab645e76b51491b2592fc0d2584bdee43a50c56d42e880238"
+python-versions = ">=3.8, <3.12"
+content-hash = "01b50d7e0926c5baaa482e6ae9e9b18bfeac9f85760feebee2909586d4c6b277"
 
 [metadata.files]
 azure-core = []
