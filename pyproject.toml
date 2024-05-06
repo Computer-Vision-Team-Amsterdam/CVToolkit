@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cvtoolkit"
-version = "1.0.3"
+version = "2.0.0"
 description = "CVToolkit is a collection of essential utilities for computer vision team projects, enhancing reusability and boosting productivity across multiple projects."
 authors = [
     "Sebastian Davrieux <s.davrieux@amsterdam.nl>",
@@ -9,13 +9,13 @@ authors = [
 ]
 
 [tool.poetry.dependencies]
-python = "~3.8"
+python = ">=3.8, <3.12"
 numpy = {version = "^1.24.2", source = "PyPI"}
 opencensus-ext-azure = {version = "^1.1.13", source = "PyPI"}
 pre-commit = {version = "^3.2.0", source = "PyPI"}
 pydantic = {version = "^1.8.2", source = "PyPI"}
 SQLAlchemy = {version = "1.4.50", source = "PyPI"}
-torch = {version = ">=1.7.0", source = "PyPI"}
+torch = {version = "2.2.2", source = "PyPI"}
 
 [tool.poetry.dev-dependencies]
 
