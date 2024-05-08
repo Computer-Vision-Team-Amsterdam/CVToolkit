@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -25,10 +26,10 @@ class TotalBlurredArea:
         -------
 
         """
-        self.tp += np.sum((true_mask == 1) & (predicted_mask == 1))
-        self.fp += np.sum((true_mask == 0) & (predicted_mask == 1))
-        self.tn += np.sum((true_mask == 0) & (predicted_mask == 0))
-        self.fn += np.sum((true_mask == 1) & (predicted_mask == 0))
+        self.tp += np.count_nonzero(np.logical_and(true_mask, predicted_mask))
+        self.fp += np.count_nonzero(np.logical_and(~true_mask, predicted_mask))
+        self.tn += np.count_nonzero(np.logical_and(~true_mask, ~predicted_mask))
+        self.fn += np.count_nonzero(np.logical_and(true_mask, ~predicted_mask))
 
     def get_statistics(self):
         """
