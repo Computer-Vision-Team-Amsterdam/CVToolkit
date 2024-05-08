@@ -55,6 +55,8 @@ class YoloLabelsDataset(Dataset):
         for file in self.label_files:
             with open(f"{self.folder_path}/{file}", "r") as f:
                 lines = f.readlines()
+            if len(lines) == 0:
+                continue
             filename_no_extension = Path(os.path.splitext(file)[0]).stem
             self._labels[filename_no_extension] = np.array(
                 [line.strip().split() for line in lines], dtype="f"
