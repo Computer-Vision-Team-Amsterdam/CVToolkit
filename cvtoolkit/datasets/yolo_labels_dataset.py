@@ -64,6 +64,9 @@ class YoloLabelsDataset(Dataset):
 
         self._filtered_labels = self._labels.copy()
 
+    def reset_filter(self):
+        self._filtered_labels = self._labels.copy()
+
     def filter_by_size(self, size_to_keep):
         def _keep_labels_with_area_in_interval(bboxes, interval, img_area):
             product = bboxes[:, 3] * bboxes[:, 4] * img_area
