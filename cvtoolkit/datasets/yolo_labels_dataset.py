@@ -82,6 +82,10 @@ class YoloLabelsDataset(Dataset):
             )
 
         return self
+    
+    def filter_by_size_percentage(self, perc_to_keep):
+        size_to_keep = (perc_to_keep[0] * self.image_area, perc_to_keep[1] * self.image_area)
+        return self.filter_by_size(size_to_keep)
 
     def filter_by_class(self, class_to_keep):
         def _keep_labels_with_class(array, class_id):
