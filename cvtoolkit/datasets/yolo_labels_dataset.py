@@ -1,7 +1,8 @@
 import glob
+import json
 import os
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Tuple
 
 import numpy as np
 import numpy.typing as npt
@@ -16,6 +17,50 @@ class YoloLabelsDataset(Dataset):
         self._labels: Dict[str, npt.NDArray] = {}
         self._filtered_labels: Dict[str, npt.NDArray] = {}
         self._prepare_labels()
+
+    @classmethod
+    def from_yolo_validation_json(
+        cls, yolo_val_json: str, image_shape: Tuple[int, int]
+    ):
+        dataset = cls.__new__(cls)
+        super(YoloLabelsDataset, dataset).__init__()
+        dataset.image_area = image_shape[0] * image_shape[1]
+        dataset._labels = {}
+
+        with open(yolo_val_json) as file:
+            json_content = json.load(file)
+            if isinstance(json_content, dict):
+                annotation_list = json_content["annotations"]
+            elif isinstance(json_content, list):
+                annotation_list = json_content
+            else:
+                print("Unknown json content, aborting.")
+                return None
+
+        for annotation in annotation_list:
+            xmin, ymin, width, height = annotation["bbox"]
+            xc = xmin + width / 2
+            yc = ymin + height / 2
+            yolo_box = [
+                annotation["category_id"],
+                xc / image_shape[0],
+                yc / image_shape[1],
+                width / image_shape[0],
+                height / image_shape[1],
+            ]
+            if "score" in annotation.keys():
+                yolo_box.append(annotation["score"])
+            if annotation["image_id"] in dataset._labels.keys():
+                dataset._labels[annotation["image_id"]] = np.vstack(
+                    [dataset._labels[annotation["image_id"]], yolo_box], dtype="f"
+                )
+            else:
+                dataset._labels[annotation["image_id"]] = np.array(
+                    [yolo_box], dtype="f"
+                )
+
+        dataset._filtered_labels = dataset._labels.copy()
+        return dataset
 
     def __len__(self):
         return len(self.label_files)
@@ -82,9 +127,12 @@ class YoloLabelsDataset(Dataset):
             )
 
         return self
-    
+
     def filter_by_size_percentage(self, perc_to_keep):
-        size_to_keep = (perc_to_keep[0] * self.image_area, perc_to_keep[1] * self.image_area)
+        size_to_keep = (
+            perc_to_keep[0] * self.image_area,
+            perc_to_keep[1] * self.image_area,
+        )
         return self.filter_by_size(size_to_keep)
 
     def filter_by_class(self, class_to_keep):
