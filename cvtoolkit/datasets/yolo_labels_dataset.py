@@ -3,7 +3,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 import numpy.typing as npt
@@ -13,17 +13,25 @@ logger = logging.getLogger(__name__)
 
 
 class YoloLabelsDataset(Dataset):
-    def __init__(self, folder_path: str, image_area: int):
+    def __init__(
+        self,
+        folder_path: str,
+        image_area: int,
+        confidence_threshold: Optional[float] = None,
+    ):
         self.folder_path = folder_path
         self.label_files = self.get_txt_files()
         self.image_area = image_area
         self._labels: Dict[str, npt.NDArray] = {}
         self._filtered_labels: Dict[str, npt.NDArray] = {}
-        self._prepare_labels()
+        self._prepare_labels(confidence_threshold)
 
     @classmethod
     def from_yolo_validation_json(
-        cls, yolo_val_json: str, image_shape: Tuple[int, int]
+        cls,
+        yolo_val_json: str,
+        image_shape: Tuple[int, int],
+        confidence_threshold: Optional[float] = None,
     ):
         """
         Create a YoloLabelsDataset from a COCO JSON file
@@ -37,6 +45,8 @@ class YoloLabelsDataset(Dataset):
             Path to the JSON file.
         image_shape: Tuple[int, int]
             Shape of the images as (width, height) tuple.
+        confidence_threshold: Optional[float] = None
+            Optional: minimum confidence score to filter annotations by
 
         Returns
         -------
@@ -69,6 +79,10 @@ class YoloLabelsDataset(Dataset):
                 height / image_shape[1],
             ]
             if "score" in annotation.keys():
+                if confidence_threshold and (
+                    annotation["score"] < confidence_threshold
+                ):
+                    continue
                 yolo_box.append(annotation["score"])
             if annotation["image_id"] in dataset._labels.keys():
                 dataset._labels[annotation["image_id"]] = np.vstack(
@@ -105,12 +119,18 @@ class YoloLabelsDataset(Dataset):
     def get_filtered_labels(self):
         return self._filtered_labels
 
-    def _prepare_labels(self):
+    def _filter_bboxes_by_conf(self, bboxes: npt.NDArray, conf: float):
+        if bboxes.shape[1] < 5:
+            return bboxes
+        else:
+            return bboxes[bboxes[:, 5] >= conf]
+
+    def _prepare_labels(self, confidence_threshold: Optional[float] = None):
         """
         Loop through the yolo labels and store them in a dict.
 
-        Each key in the dict is an image, each value is a ndarray (n_detections, 5)
-        The 6 columns are in the yolo format, i.e. (target_class, x_c, y_c, width, height)
+        Each key in the dict is an image, each value is a ndarray (n_detections, 6)
+        The 6 columns are in the yolo format, i.e. (target_class, x_c, y_c, width, height, conf)
 
         Returns
         -------
@@ -123,9 +143,10 @@ class YoloLabelsDataset(Dataset):
             if len(lines) == 0:
                 continue
             filename_no_extension = Path(os.path.splitext(file)[0]).stem
-            self._labels[filename_no_extension] = np.array(
-                [line.strip().split() for line in lines], dtype="f"
-            )
+            bboxes = np.array([line.strip().split() for line in lines], dtype="f")
+            if confidence_threshold:
+                bboxes = self._filter_bboxes_by_conf(bboxes, confidence_threshold)
+            self._labels[filename_no_extension] = bboxes
 
         self._filtered_labels = self._labels.copy()
 
@@ -165,7 +186,7 @@ class YoloLabelsDataset(Dataset):
         )
         return self.filter_by_size(size_to_keep)
 
-    def filter_by_class(self, class_to_keep):
+    def filter_by_class(self, class_to_keep: int):
         """
         Filter dataset by object class.
         """
@@ -176,6 +197,18 @@ class YoloLabelsDataset(Dataset):
         for image_id, labels in self._filtered_labels.items():
             self._filtered_labels[image_id] = _keep_labels_with_class(
                 labels, class_id=class_to_keep
+            )
+
+        return self
+
+    def filter_by_confidence(self, conf_to_keep: float):
+        """
+        Filter dataset by confidence score.
+        """
+
+        for image_id, labels in self._filtered_labels.items():
+            self._filtered_labels[image_id] = self._filter_bboxes_by_conf(
+                labels, conf_to_keep
             )
 
         return self
