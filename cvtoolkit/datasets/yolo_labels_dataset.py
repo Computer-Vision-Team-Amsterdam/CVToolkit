@@ -120,7 +120,7 @@ class YoloLabelsDataset(Dataset):
         return self._filtered_labels
 
     def _filter_bboxes_by_conf(self, bboxes: npt.NDArray, conf: float):
-        if bboxes.shape[1] < 5:
+        if bboxes.shape[1] < 6:
             return bboxes
         else:
             return bboxes[bboxes[:, 5] >= conf]
