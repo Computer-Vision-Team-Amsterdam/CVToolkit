@@ -67,6 +67,9 @@ class YoloLabelsDataset(Dataset):
                 logger.error("Unknown json content, aborting.")
                 return None
 
+        if not confidence_threshold:
+            confidence_threshold = 0.0
+
         for annotation in annotation_list:
             xmin, ymin, width, height = annotation["bbox"]
             xc = xmin + width / 2
@@ -79,11 +82,12 @@ class YoloLabelsDataset(Dataset):
                 height / image_shape[1],
             ]
             if "score" in annotation.keys():
-                if confidence_threshold and (
-                    annotation["score"] < confidence_threshold
-                ):
+                if annotation["score"] < confidence_threshold:
+                    # If a confidence score exists and it is below the
+                    # threshold, we skip this annotation
                     continue
                 yolo_box.append(annotation["score"])
+
             if annotation["image_id"] in dataset._labels.keys():
                 dataset._labels[annotation["image_id"]] = np.vstack(
                     [dataset._labels[annotation["image_id"]], yolo_box], dtype="f"
@@ -131,8 +135,10 @@ class YoloLabelsDataset(Dataset):
         """
         Loop through the yolo labels and store them in a dict.
 
-        Each key in the dict is an image, each value is a ndarray (n_detections, 6)
-        The 6 columns are in the yolo format, i.e. (target_class, x_c, y_c, width, height, conf)
+        Each key in the dict is an image, each value is a ndarray of shape
+        `(n_detections, 6)`, with the 6 columns being in the yolo format, i.e.
+        `(target_class, x_c, y_c, width, height, conf)`. The 6th column with
+        confidence score is optional.
 
         Returns
         -------
