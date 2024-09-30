@@ -3,7 +3,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Dict, Tuple
 
 import numpy as np
 import numpy.typing as npt
@@ -17,7 +17,7 @@ class YoloLabelsDataset(Dataset):
         self,
         folder_path: str,
         image_area: int,
-        confidence_threshold: Optional[float] = None,
+        confidence_threshold: float = 0.0,
     ):
         """
         Create a YoloLabelsDataset from a folder of YOLO annotation files in
@@ -29,8 +29,8 @@ class YoloLabelsDataset(Dataset):
             Path to the annotation files.
         image_area: int
             Total area of the image (as `width*height`).
-        confidence_threshold: Optional[float] = None
-            Optional: minimum confidence score to filter annotations by
+        confidence_threshold: float = 0.0
+            Minimum confidence score to filter annotations by
         """
         self.folder_path = folder_path
         self.label_files = self.get_txt_files()
@@ -44,7 +44,7 @@ class YoloLabelsDataset(Dataset):
         cls,
         yolo_val_json: str,
         image_shape: Tuple[int, int],
-        confidence_threshold: Optional[float] = None,
+        confidence_threshold: float = 0.0,
     ):
         """
         Create a YoloLabelsDataset from a COCO JSON file (see e.g.
@@ -57,8 +57,8 @@ class YoloLabelsDataset(Dataset):
             Path to the JSON file.
         image_shape: Tuple[int, int]
             Shape of the images as (width, height) tuple.
-        confidence_threshold: Optional[float] = None
-            Optional: minimum confidence score to filter annotations by
+        confidence_threshold: float = 0.0
+           Minimum confidence score to filter annotations by
 
         Returns
         -------
@@ -78,9 +78,6 @@ class YoloLabelsDataset(Dataset):
             else:
                 logger.error("Unknown json content, aborting.")
                 return None
-
-        if not confidence_threshold:
-            confidence_threshold = 0.0
 
         for annotation in annotation_list:
             if ("score" in annotation.keys()) and (
@@ -146,7 +143,7 @@ class YoloLabelsDataset(Dataset):
         else:
             return bboxes[bboxes[:, 5] >= conf]
 
-    def _prepare_labels(self, confidence_threshold: Optional[float] = None):
+    def _prepare_labels(self, confidence_threshold: float = 0.0):
         """
         Loop through the yolo labels and store them in a dict.
 
@@ -157,8 +154,8 @@ class YoloLabelsDataset(Dataset):
 
         Parameters
         ----------
-        confidence_threshold: Optional[float] = None
-            Optional: minimum confidence score to filter annotations by
+        confidence_threshold: float = 0.0
+            Minimum confidence score to filter annotations by
         """
         self._labels = {}
         for file in self.label_files:
