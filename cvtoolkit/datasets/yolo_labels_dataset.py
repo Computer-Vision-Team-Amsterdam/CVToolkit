@@ -120,6 +120,8 @@ class YoloLabelsDataset(Dataset):
         return self._filtered_labels
 
     def _filter_bboxes_by_conf(self, bboxes: npt.NDArray, conf: float):
+        # Confidence scores are the sixth column, if there are less we don't
+        # have conf scores so we don't filter.
         if bboxes.shape[1] < 6:
             return bboxes
         else:
