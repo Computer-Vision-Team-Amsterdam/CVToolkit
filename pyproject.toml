@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cvtoolkit"
-version = "2.0.2"
+version = "2.0.3"
 description = "CVToolkit is a collection of essential utilities for computer vision team projects, enhancing reusability and boosting productivity across multiple projects."
 authors = [
     "Sebastian Davrieux <s.davrieux@amsterdam.nl>",
