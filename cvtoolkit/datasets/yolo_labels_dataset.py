@@ -185,7 +185,7 @@ class YoloLabelsDataset(Dataset):
         def _keep_labels_with_area_in_interval(bboxes, interval, img_area):
             product = bboxes[:, 3] * bboxes[:, 4] * img_area
             selected_rows = bboxes[
-                (product >= interval[0]) & (product <= interval[1]), :
+                (product > interval[0]) & (product <= interval[1]), :
             ]
 
             return selected_rows
