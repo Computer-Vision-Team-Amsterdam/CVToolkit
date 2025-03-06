@@ -14,7 +14,7 @@ python = ">=3.8"
 numpy = {version = "^1.24.2", source = "PyPI"}
 opencensus-ext-azure = {version = "^1.1.13", source = "PyPI"}
 pre-commit = {version = "^3.2.0", source = "PyPI"}
-pydantic = {version = "^1.8.2", source = "PyPI"}
+pydantic = {version = ">1.8.2", source = "PyPI"}
 SQLAlchemy = {version = "^1.4.50", source = "PyPI"}
 torch = {version = "^2.0.0"}
 
