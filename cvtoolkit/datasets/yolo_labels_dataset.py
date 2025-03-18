@@ -177,9 +177,14 @@ class YoloLabelsDataset(Dataset):
         """
         self._filtered_labels = self._labels.copy()
 
-    def filter_by_size(self, size_to_keep: int):
+    def filter_by_size(self, size_to_keep: Tuple[int, int]):
         """
         Filter dataset by bounding box size (in pixels).
+
+        Parameters
+        ----------
+        size_to_keep: Tuple[int, int]
+            Lower and upper bound for size.
         """
 
         def _keep_labels_with_area_in_interval(bboxes, interval, img_area):
@@ -197,9 +202,14 @@ class YoloLabelsDataset(Dataset):
 
         return self
 
-    def filter_by_size_percentage(self, perc_to_keep: float):
+    def filter_by_size_percentage(self, perc_to_keep: Tuple[float, float]):
         """
         Filter dataset by bounding box size (in percentage of image area).
+
+        Parameters
+        ----------
+        perc_to_keep: Tuple[float, float]
+            Lower and upper bound for size percentage.
         """
         size_to_keep = (
             perc_to_keep[0] * self.image_area,
