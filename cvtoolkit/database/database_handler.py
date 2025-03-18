@@ -32,7 +32,7 @@ class DBConfigSQLAlchemy:
     def _get_db_access_token(self):
         # Authenticate using Managed Identity (MSI)
         try:
-            command = ["az", "login", "--identity", "--username", self.client_id]
+            command = ["az", "login", "--identity", "--client-id", self.client_id]
             subprocess.check_call(command)  # nosec
         except subprocess.CalledProcessError as e:
             logger.error("Error during 'az login --identity': {e}")
