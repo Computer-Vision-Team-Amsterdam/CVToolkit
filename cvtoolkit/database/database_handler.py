@@ -44,8 +44,6 @@ class DBConfigSQLAlchemy:
         self.access_token: Optional[str] = None
         self.token_expiration_time: Optional[datetime] = None
         self.token_renewal_margin: timedelta = timedelta(minutes=5)
-        self.retry_count: int = 3
-        self.retry_delay: int = 5  # seconds between retries
 
     def _run_az_cli(self, command: list[str]) -> dict:
         """
@@ -135,6 +133,14 @@ class DBConfigSQLAlchemy:
             logger.exception("Error creating database sessionmaker.")
             raise
 
+    def _get_session(self):
+        if self.session_maker is None:
+            raise RuntimeError(
+                "SessionMaker has not been created. Call create_connection() first."
+            )
+
+        return self.session_maker()
+
     @contextmanager
     def managed_session(self) -> Generator[Session, None, None]:
         """
@@ -152,29 +158,20 @@ class DBConfigSQLAlchemy:
         SQLAlchemyError
             If a general SQLAlchemy error occurs.
         """
-        for attempt in range(self.retry_count):
-            self._validate_token_status()
-            if not self.session_maker:
-                raise RuntimeError("SessionMaker has not been created. Call create_connection() first.")
-
-            session = self.session_maker()
-
-            try:
-                yield session
-                session.commit()
-                break
-            except SQLAlchemyError:
-                session.rollback()
-                logger.exception("Database error encountered, rolling back changes.")
-            except DatabaseError as e:
-                logger.error(
-                    f"Database connection error. Retrying in {self.retry_delay} seconds..."
-                )
-                time.sleep(self.retry_delay)
-                if attempt == self.retry_count - 1:
-                    raise e
-            finally:
-                session.close()
+        self._validate_token_status()
+        session = self._get_session()
+        try:
+            yield session
+            session.commit()
+        except SQLAlchemyError:
+            session.rollback()
+            logger.error("Database error encountered, rolling back changes.")
+            raise
+        except DatabaseError:
+            logger.error("Database connection error.")
+            raise
+        finally:
+            session.close()
 
     def close_connection(self) -> None:
         """
