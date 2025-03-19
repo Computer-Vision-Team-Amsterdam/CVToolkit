@@ -162,7 +162,7 @@ class DBConfigSQLAlchemy:
             try:
                 yield session
                 session.commit()
-                return  # Exit if successful
+                break
             except SQLAlchemyError:
                 session.rollback()
                 logger.exception("Database error encountered, rolling back changes.")
