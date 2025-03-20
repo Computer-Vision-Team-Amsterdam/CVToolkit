@@ -3,7 +3,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, Iterable, Tuple, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -177,9 +177,14 @@ class YoloLabelsDataset(Dataset):
         """
         self._filtered_labels = self._labels.copy()
 
-    def filter_by_size(self, size_to_keep: int):
+    def filter_by_size(self, size_to_keep: Tuple[int, int]):
         """
         Filter dataset by bounding box size (in pixels).
+
+        Parameters
+        ----------
+        size_to_keep: Tuple[int, int]
+            Lower and upper bound for size.
         """
 
         def _keep_labels_with_area_in_interval(bboxes, interval, img_area):
@@ -197,9 +202,14 @@ class YoloLabelsDataset(Dataset):
 
         return self
 
-    def filter_by_size_percentage(self, perc_to_keep: float):
+    def filter_by_size_percentage(self, perc_to_keep: Tuple[float, float]):
         """
         Filter dataset by bounding box size (in percentage of image area).
+
+        Parameters
+        ----------
+        perc_to_keep: Tuple[float, float]
+            Lower and upper bound for size percentage.
         """
         size_to_keep = (
             perc_to_keep[0] * self.image_area,
@@ -207,13 +217,20 @@ class YoloLabelsDataset(Dataset):
         )
         return self.filter_by_size(size_to_keep)
 
-    def filter_by_class(self, class_to_keep: int):
+    def filter_by_class(self, class_to_keep: Union[int, Iterable[int]]):
         """
         Filter dataset by object class.
+
+        Parameters
+        ----------
+        class_to_keep: Union[int, Iterable[int]]
+            Class or list of classes to keep.
         """
 
         def _keep_labels_with_class(array, class_id):
-            return array[array[:, 0] == class_id, :]
+            if isinstance(class_id, set):
+                class_id = list(class_id)
+            return array[np.isin(array[:, 0], class_id), :]
 
         for image_id, labels in self._filtered_labels.items():
             self._filtered_labels[image_id] = _keep_labels_with_class(
