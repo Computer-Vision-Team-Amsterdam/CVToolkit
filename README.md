@@ -45,6 +45,13 @@ source .venv/bin/activate
 # Install dependencies
 uv pip install -r pyproject.toml --extra dev
 ```
+
+To update dependencies (e.g. when pyproject.toml dependencies change):
+
+```bash
+uv lock --upgrade
+uv sync --extra dev
+```
     
 #### 5. Install pre-commit hooks
 The pre-commit hooks help to ensure that all committed code is valid and consistently formatted.
