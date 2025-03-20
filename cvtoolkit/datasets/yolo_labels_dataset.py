@@ -7,12 +7,11 @@ from typing import Dict, Iterable, Tuple, Union
 
 import numpy as np
 import numpy.typing as npt
-from torch.utils.data import Dataset
 
 logger = logging.getLogger(__name__)
 
 
-class YoloLabelsDataset(Dataset):
+class YoloLabelsDataset:
     def __init__(
         self,
         folder_path: str,
@@ -212,8 +211,8 @@ class YoloLabelsDataset(Dataset):
             Lower and upper bound for size percentage.
         """
         size_to_keep = (
-            perc_to_keep[0] * self.image_area,
-            perc_to_keep[1] * self.image_area,
+            int(perc_to_keep[0] * self.image_area),
+            int(perc_to_keep[1] * self.image_area),
         )
         return self.filter_by_size(size_to_keep)
 
