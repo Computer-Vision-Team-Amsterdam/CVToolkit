@@ -1,29 +1,38 @@
-[tool.poetry]
+[build-system]
+requires = ["setuptools>=70.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
 name = "cvtoolkit"
 version = "2.0.6"
 description = "CVToolkit is a collection of essential utilities for computer vision team projects, enhancing reusability and boosting productivity across multiple projects."
 authors = [
-    "Sebastian Davrieux <s.davrieux@amsterdam.nl>",
-    "Diana Epureanu <d.epureanu@amsterdam.nl>",
-    "Andrea Lombardo <a.lombardo@amsterdam.nl>",
-    "Daan Bloembergen <d.bloembergen@amsterdam.nl>"
+    {name = "Sebastian Davrieux", email = "s.davrieux@amsterdam.nl"},
+    {name = "Diana Epureanu", email = "d.epureanu@amsterdam.nl"},
+    {name = "Andrea Lombardo", email = "a.lombardo@amsterdam.nl"},
+    {name = "Daan Bloembergen", email = "d.bloembergen@amsterdam.nl"},
+]
+maintainers = [
+    { name = "Computer Vision Team, Gemeente Amsterdam", email = "cvt@amsterdam.nl" },
+]
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.24.2",
+    "opencensus-ext-azure>=1.1.13",
+    "pydantic>=1.8.2",
+    "SQLAlchemy>=1.4.50",
+    "torch>=2.0.0",
 ]
 
-[tool.poetry.dependencies]
-python = ">=3.8"
-numpy = {version = "^1.24.2", source = "PyPI"}
-opencensus-ext-azure = {version = "^1.1.13", source = "PyPI"}
-pre-commit = {version = "^3.2.0", source = "PyPI"}
-pydantic = {version = "^1.8.2", source = "PyPI"}
-SQLAlchemy = {version = "^1.4.50", source = "PyPI"}
-torch = {version = "^2.0.0"}
-
-[tool.poetry.dev-dependencies]
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=3.2.0",
+    "pytest>=7.0.1",
+    "pytest-cov>=4.0.0",
+    "safety>=3.2.4",
+]
 
 [tool.isort]
 profile = "black"
 multi_line_output = 3
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
