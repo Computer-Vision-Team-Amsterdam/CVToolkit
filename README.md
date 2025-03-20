@@ -68,3 +68,11 @@ uv run pre-commit autoupdate
 # Run pre-commit hooks using
 uv run .git/hooks/pre-commit
 ```
+
+#### 6. Run pytest
+
+Tests are included in `tests/`. To run pytest using UV:
+
+```bash
+uv run pytest
+```
