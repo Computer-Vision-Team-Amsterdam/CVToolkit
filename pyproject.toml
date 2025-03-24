@@ -32,9 +32,6 @@ dev = [
     "safety>=3.2.4",
 ]
 
-[tool.setuptools]
-py-modules = ["CVToolkit"]
-
 [tool.isort]
 profile = "black"
 multi_line_output = 3
