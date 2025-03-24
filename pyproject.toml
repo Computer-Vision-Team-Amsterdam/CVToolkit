@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cvtoolkit"
-version = "2.0.6"
+version = "2.0.7"
 description = "CVToolkit is a collection of essential utilities for computer vision team projects, enhancing reusability and boosting productivity across multiple projects."
 authors = [
     {name = "Sebastian Davrieux", email = "s.davrieux@amsterdam.nl"},
@@ -22,7 +22,6 @@ dependencies = [
     "opencensus-ext-azure>=1.1.13",
     "pydantic>=1.8.2",
     "SQLAlchemy>=1.4.50",
-    "torch>=2.0.0",
 ]
 
 [project.optional-dependencies]
