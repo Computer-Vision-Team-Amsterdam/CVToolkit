@@ -33,7 +33,7 @@ dev = [
 ]
 
 [tool.setuptools]
-py-modules = ["CVToolkit"]
+py-modules = ["cvtoolkit"]
 
 [tool.isort]
 profile = "black"
