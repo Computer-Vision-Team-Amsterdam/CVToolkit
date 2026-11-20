@@ -21,7 +21,7 @@ dependencies = [
     "numpy>=1.24.2",
     "opencensus-ext-azure>=1.1.13",
     "pydantic>=1.8.2",
-    "SQLAlchemy>=1.4.50",
+    "SQLAlchemy[postgresql-psycopg2binary]>=2.0.0",
 ]
 
 [project.optional-dependencies]
