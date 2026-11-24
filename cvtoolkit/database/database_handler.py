@@ -1,16 +1,15 @@
 import json
 import logging
 import subprocess  # nosec
-import time
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from typing import Generator, Optional
 
 from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
 from sqlalchemy.exc import DatabaseError, SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session, sessionmaker
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +19,9 @@ class DBConfigSQLAlchemy:
 
     Base = declarative_base()
 
-    def __init__(self, db_username: str, db_hostname: str, db_name: str, client_id: str) -> None:
+    def __init__(
+        self, db_username: str, db_hostname: str, db_name: str, client_id: str
+    ) -> None:
         """
         Initializes the database configuration.
 
@@ -98,6 +99,7 @@ class DBConfigSQLAlchemy:
             datetime.fromisoformat(expires_on_str) - self.token_renewal_margin
         )
         logger.info("Database access token retrieved successfully.")
+        logger.debug(f"Token expires on {self.token_expiration_time}")
 
     def _get_db_connection_string(self) -> str:
         """
@@ -108,7 +110,9 @@ class DBConfigSQLAlchemy:
         str
             The database connection string.
         """
-        if not self.access_token or datetime.now() >= self.token_expiration_time:
+        if (self.token_expiration_time is None) or (
+            datetime.now() >= self.token_expiration_time
+        ):
             self._get_db_access_token()
 
         return f"postgresql+psycopg2://{self.db_username}:{self.access_token}@{self.db_hostname}/{self.db_name}"
@@ -194,6 +198,9 @@ class DBConfigSQLAlchemy:
         """
         Checks and renews the access token if needed.
         """
-        if not self.token_expiration_time or datetime.now() >= self.token_expiration_time:
-            self._get_db_access_token()
-            logger.info("Database access token renewed.")
+        if (self.token_expiration_time is None) or (
+            datetime.now() >= self.token_expiration_time
+        ):
+            logger.info("Token expired, renewing connection...")
+            self.close_connection()
+            self.create_connection()
